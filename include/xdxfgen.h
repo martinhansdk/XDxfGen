@@ -44,6 +44,12 @@ using namespace std;
 // or routines under the test
 #define X_DXFGEN_NOT_IMPLEMENTED
 
+#ifndef XDxfGen_X_PI
+#define XDxfGen_X_PI
+const double X_PI = 3.1415926535897932384626433832795;
+#endif
+
+template<typename T>
 class XDxfGen
 {
 public:
@@ -54,31 +60,31 @@ public:
     bool end();
 
     // Put a circle on an output plot
-    bool circle(float radius, float x, float y, float width = 0, int layer = 0);
+    bool circle(T radius, T x, T y, T width = 0, int layer = 0);
     
-    bool line(float x1,float y1,float x2,float y2, float width = 0, int layer = 0);
-    template <typename T>
-        bool polyline(const std::vector<T> &vx, const std::vector<T> &vy,
-                      float width = 0, int layer = 0);
+    bool line(T x1,T y1,T x2,T y2, T width = 0, int layer = 0);
 
-    bool arc(float center_x, float center_y,
-             float radius,
-             float start_angle_deg, float end_angle_deg,
-             float width = 0, int layer = 0);
+    bool polyline(const std::vector<T> &vx, const std::vector<T> &vy,
+                  T width = 0, int layer = 0);
 
-    bool point(float x, float y, int layer = 0);
+    bool arc(T center_x, T center_y,
+             T radius,
+             T start_angle_deg, T end_angle_deg,
+             T width = 0, int layer = 0);
+
+    bool point(T x, T y, int layer = 0);
 
     #ifdef X_DXFGEN_NOT_IMPLEMENTED
     // Not implemented funcs
     // Draw a polyline
-    bool lwpolyline(const std::vector<float> &vx, const std::vector<float> &vy,
-                    float width = 0, int layer = 0);
+    bool lwpolyline(const std::vector<T> &vx, const std::vector<T> &vy,
+                    T width = 0, int layer = 0);
     
     // Put an ellipse on an output plot
-    bool ellipse(float center_x, float center_y,
-        float major_axis_shift_x, float major_axis_shift_y,
-        float ratio, float start_angle = 0.0f, float end_angle = 2*X_PI,
-        float width = 0, int layer = 0);
+    bool ellipse(T center_x, T center_y,
+        T major_axis_shift_x, T major_axis_shift_y,
+        T ratio, T start_angle = 0.0f, T end_angle = 2*X_PI,
+        T width = 0, int layer = 0);
     #endif
 
 private:
@@ -86,26 +92,24 @@ private:
     bool f_closed;
     bool m_status;
 
-    static const double X_PI;
 };
 
-#ifndef XDxfGen_X_PI
-#define XDxfGen_X_PI
-const double XDxfGen::X_PI = 3.1415926535897932384626433832795;
-#endif
 
-XDxfGen::XDxfGen()
+template<typename T>
+XDxfGen<T>::XDxfGen()
 {
    f_closed = true;
    m_status = true;
 }
 
-XDxfGen::~XDxfGen()
+template<typename T>
+XDxfGen<T>::~XDxfGen()
 {
    end(); // force close
 }
 
-void XDxfGen::begin(const std::string &filename)
+template<typename T>
+void XDxfGen<T>::begin(const std::string &filename)
 {
     if (!f_closed)
         return;
@@ -163,7 +167,8 @@ void XDxfGen::begin(const std::string &filename)
     m_file << "ENTITIES" << endl;
 }
 
-bool XDxfGen::end()
+template<typename T>
+bool XDxfGen<T>::end()
 {
     if (!f_closed)
     {
@@ -179,7 +184,8 @@ bool XDxfGen::end()
     return m_status;
 }
 
-bool XDxfGen::point(float x, float y, int layer)
+template<typename T>
+bool XDxfGen<T>::point(T x, T y, int layer)
 {
     m_file << 0 << endl; // entity type
     m_file << "POINT" << endl;
@@ -199,7 +205,8 @@ bool XDxfGen::point(float x, float y, int layer)
     return true;
 }
 
-bool XDxfGen::circle(float radius, float x, float y, float width, int layer)
+template<typename T>
+bool XDxfGen<T>::circle(T radius, T x, T y, T width, int layer)
 {
     // Draw the circle
     m_file << 0    << endl;
@@ -226,7 +233,8 @@ bool XDxfGen::circle(float radius, float x, float y, float width, int layer)
     return true;
 }
 
-bool XDxfGen::line(float x1,float y1,float x2,float y2, float width, int layer)
+template<typename T>
+bool XDxfGen<T>::line(T x1,T y1,T x2,T y2, T width, int layer)
 {
     // Draw the circle
     m_file << 0          << endl;
@@ -237,8 +245,8 @@ bool XDxfGen::line(float x1,float y1,float x2,float y2, float width, int layer)
     m_file << 39 << endl;
     m_file << width    << endl;    // Line thickness
 
-    float z1 = 0.0f;
-    float z2 = 0.0f;
+    T z1 = 0.0f;
+    T z2 = 0.0f;
 
     m_file << 10    << endl;    // XYZ is the Center point of circle
     m_file << x1    << endl;    // X in UCS (User Coordinate System)coordinates
@@ -258,8 +266,8 @@ bool XDxfGen::line(float x1,float y1,float x2,float y2, float width, int layer)
 }
 
 template <typename T>
-bool XDxfGen::polyline(const std::vector<T> &vx, const std::vector<T> &vy,
-                       float width, int layer)
+bool XDxfGen<T>::polyline(const std::vector<T> &vx, const std::vector<T> &vy,
+                       T width, int layer)
 {
     if (vx.size() != vy.size())
         return false;
@@ -344,10 +352,11 @@ bool XDxfGen::polyline(const std::vector<T> &vx, const std::vector<T> &vy,
     return true;
 }
 
-bool XDxfGen::arc(float center_x, float center_y,
-                  float radius,
-                  float start_angle_deg, float end_angle_deg,
-                  float width, int layer)
+template<typename T>
+bool XDxfGen<T>::arc(T center_x, T center_y,
+                  T radius,
+                  T start_angle_deg, T end_angle_deg,
+                  T width, int layer)
 {
     // Draw an arc
     m_file << 0    << endl;
@@ -395,11 +404,12 @@ bool XDxfGen::arc(float center_x, float center_y,
 
 #ifdef X_DXFGEN_NOT_IMPLEMENTED
 
-bool XDxfGen::ellipse(float center_x, float center_y, float major_x, float major_y,
-        float ratio, float start_angle, float end_angle, float width, int layer)
+template<typename T>
+bool XDxfGen<T>::ellipse(T center_x, T center_y, T major_x, T major_y,
+        T ratio, T start_angle, T end_angle, T width, int layer)
 {
-    float center_z = 0.0;
-    float major_z = 0.0;
+    T center_z = 0.0;
+    T major_z = 0.0;
 
     // Draw the ellipse
     m_file << 0    << endl;
@@ -466,8 +476,9 @@ bool XDxfGen::ellipse(float center_x, float center_y, float major_x, float major
     return true;
 }
 
-bool XDxfGen::lwpolyline(const std::vector<float> &vx, const std::vector<float> &vy,
-                         float width, int layer)
+template<typename T>
+bool XDxfGen<T>::lwpolyline(const std::vector<T> &vx, const std::vector<T> &vy,
+                         T width, int layer)
 {
     m_file << 0 << endl;
     m_file << "LWPOLYLINE"  << endl;
