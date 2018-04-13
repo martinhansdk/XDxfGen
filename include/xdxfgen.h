@@ -60,31 +60,31 @@ public:
     bool end();
 
     // Put a circle on an output plot
-    bool circle(T radius, T x, T y, T width = 0, int layer = 0);
+    bool circle(T radius, T x, T y, T width = 0, int layer = 0, int color = 0);
     
-    bool line(T x1,T y1,T x2,T y2, T width = 0, int layer = 0);
+    bool line(T x1,T y1,T x2,T y2, T width = 0, int layer = 0, int color = 0);
 
     bool polyline(const std::vector<T> &vx, const std::vector<T> &vy,
-                  T width = 0, int layer = 0);
+                  T width = 0, int layer = 0, int color = 0);
 
     bool arc(T center_x, T center_y,
              T radius,
              T start_angle_deg, T end_angle_deg,
-             T width = 0, int layer = 0);
+             T width = 0, int layer = 0, int color = 0);
 
-    bool point(T x, T y, int layer = 0);
+    bool point(T x, T y, int layer = 0, int color = 0);
 
     #ifdef X_DXFGEN_NOT_IMPLEMENTED
     // Not implemented funcs
     // Draw a polyline
     bool lwpolyline(const std::vector<T> &vx, const std::vector<T> &vy,
-                    T width = 0, int layer = 0);
+                    T width = 0, int layer = 0, int color = 0);
     
     // Put an ellipse on an output plot
     bool ellipse(T center_x, T center_y,
         T major_axis_shift_x, T major_axis_shift_y,
         T ratio, T start_angle = 0.0f, T end_angle = 2*X_PI,
-        T width = 0, int layer = 0);
+        T width = 0, int layer = 0, int color = 0);
     #endif
 
 private:
@@ -185,13 +185,16 @@ bool XDxfGen<T>::end()
 }
 
 template<typename T>
-bool XDxfGen<T>::point(T x, T y, int layer)
+bool XDxfGen<T>::point(T x, T y, int layer, int color)
 {
     m_file << 0 << endl; // entity type
     m_file << "POINT" << endl;
 
     m_file << 8 << endl; // layer name
     m_file << layer << endl;
+        
+    m_file << 62 << endl; // color
+    m_file << color << endl;
         
     m_file << 10 << endl;
     m_file << x << endl;
@@ -202,11 +205,13 @@ bool XDxfGen<T>::point(T x, T y, int layer)
     m_file << 30 << endl;
     m_file << 0.0 << endl;
 
+
+    
     return true;
 }
 
 template<typename T>
-bool XDxfGen<T>::circle(T radius, T x, T y, T width, int layer)
+bool XDxfGen<T>::circle(T radius, T x, T y, T width, int layer, int color)
 {
     // Draw the circle
     m_file << 0    << endl;
@@ -215,6 +220,9 @@ bool XDxfGen<T>::circle(T radius, T x, T y, T width, int layer)
     m_file << 8 << endl;
     m_file << layer    << endl;    // Layer number (default layer in autocad)
 
+    m_file << 62 << endl; // color
+    m_file << color << endl;
+    
     m_file << 39 << endl;
     m_file << width    << endl;    // Line thickness
 
@@ -234,7 +242,7 @@ bool XDxfGen<T>::circle(T radius, T x, T y, T width, int layer)
 }
 
 template<typename T>
-bool XDxfGen<T>::line(T x1,T y1,T x2,T y2, T width, int layer)
+bool XDxfGen<T>::line(T x1,T y1,T x2,T y2, T width, int layer, int color)
 {
     // Draw the circle
     m_file << 0          << endl;
@@ -242,6 +250,9 @@ bool XDxfGen<T>::line(T x1,T y1,T x2,T y2, T width, int layer)
     m_file << 8          << endl;
     m_file << layer          << endl;    // Layer number (default layer in autocad)
 
+    m_file << 62 << endl; // color
+    m_file << color << endl;
+    
     m_file << 39 << endl;
     m_file << width    << endl;    // Line thickness
 
@@ -267,7 +278,7 @@ bool XDxfGen<T>::line(T x1,T y1,T x2,T y2, T width, int layer)
 
 template <typename T>
 bool XDxfGen<T>::polyline(const std::vector<T> &vx, const std::vector<T> &vy,
-                       T width, int layer)
+                       T width, int layer, int color)
 {
     if (vx.size() != vy.size())
         return false;
@@ -281,6 +292,9 @@ bool XDxfGen<T>::polyline(const std::vector<T> &vx, const std::vector<T> &vy,
     m_file << 8 << endl;
     m_file << layer << endl;    // Layer number (default layer in autocad)
 
+    m_file << 62 << endl; // color
+    m_file << color << endl;
+    
     m_file << 39 << endl;
     m_file << width    << endl;    // Line thickness
 
@@ -356,7 +370,7 @@ template<typename T>
 bool XDxfGen<T>::arc(T center_x, T center_y,
                   T radius,
                   T start_angle_deg, T end_angle_deg,
-                  T width, int layer)
+                  T width, int layer, int color)
 {
     // Draw an arc
     m_file << 0    << endl;
@@ -369,6 +383,9 @@ bool XDxfGen<T>::arc(T center_x, T center_y,
     m_file << 8 << endl;
     m_file << layer    << endl;    // Layer number (default layer in autocad)
 
+    m_file << 62 << endl; // color
+    m_file << color << endl;
+        
     // Circle subclass
     m_file << 100 << endl;
     m_file << "AcDbCircle" << endl;
@@ -406,7 +423,7 @@ bool XDxfGen<T>::arc(T center_x, T center_y,
 
 template<typename T>
 bool XDxfGen<T>::ellipse(T center_x, T center_y, T major_x, T major_y,
-        T ratio, T start_angle, T end_angle, T width, int layer)
+        T ratio, T start_angle, T end_angle, T width, int layer, int color)
 {
     T center_z = 0.0;
     T major_z = 0.0;
@@ -421,6 +438,9 @@ bool XDxfGen<T>::ellipse(T center_x, T center_y, T major_x, T major_y,
     m_file << 8 << endl;
     m_file << layer    << endl;    // Layer number (default layer in autocad)
 
+    m_file << 62 << endl; // color
+    m_file << color << endl;
+        
     m_file << 100 << endl;    // Subclass marker (AcDbEllipse)
     m_file << "AcDbEllipse" << endl;
 
@@ -478,7 +498,7 @@ bool XDxfGen<T>::ellipse(T center_x, T center_y, T major_x, T major_y,
 
 template<typename T>
 bool XDxfGen<T>::lwpolyline(const std::vector<T> &vx, const std::vector<T> &vy,
-                         T width, int layer)
+                         T width, int layer, int color)
 {
     m_file << 0 << endl;
     m_file << "LWPOLYLINE"  << endl;
@@ -486,6 +506,9 @@ bool XDxfGen<T>::lwpolyline(const std::vector<T> &vx, const std::vector<T> &vy,
     m_file << 8 << endl;
     m_file << layer << endl;    // Layer number (default layer in autocad)
 
+    m_file << 62 << endl; // color
+    m_file << color << endl;
+        
     size_t count = vx.size();
     count = 0;
 

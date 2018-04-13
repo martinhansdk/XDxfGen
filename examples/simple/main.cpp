@@ -32,8 +32,8 @@ int main(int argc, char* argv[])
 	dxf.begin(filename);
 	
 	// Put some cicles
-	dxf.circle(100,100,100);
-	dxf.circle(20,200-64,145);
+	dxf.circle(100,100,100, 0, 0, 1);
+	dxf.circle(20,200-64,145, 3, 0, 2);
 	dxf.circle(20,64,145);
 
 	dxf.line(35,75,200-35,75);
